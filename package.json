@@ -1,7 +1,11 @@
 {
   "dependencies": {
     "@blocks-network/sdk": "latest",
-    "dotenv": "^16.4.5"
+    "@octokit/rest": "^22.0.1",
+    "dotenv": "^16.4.5",
+    "openai": "^6.39.0",
+    "parse-diff": "^0.12.0",
+    "zod": "^4.4.3"
   },
   "devDependencies": {
     "typescript": "^5.4.5"
@@ -10,9 +14,25 @@
   "private": true,
   "scripts": {
     "check": "blocks check",
-    "start": "blocks run"
+    "start": "blocks run",
+    "login": "blocks login --write-env",
+    "explainer:check": "blocks check agents/code-explainer/agent-card.json",
+    "explainer:publish": "blocks publish agents/code-explainer/agent-card.json",
+    "explainer:run": "cd agents/code-explainer && npx blocks-run",
+    "explainer:trigger": "npx tsx agents/code-explainer/trigger.ts",
+    "meeting:check": "blocks check agents/meeting-notes/agent-card.json",
+    "meeting:publish": "blocks publish agents/meeting-notes/agent-card.json",
+    "meeting:run": "blocks run agents/meeting-notes/agent-card.json",
+    "meeting:trigger": "npx tsx agents/meeting-notes/trigger.ts",
+    "reviewer:check": "blocks check agents/github-code-review/agent-card.json",
+    "reviewer:publish": "blocks publish agents/github-code-review/agent-card.json",
+    "reviewer:run": "blocks run agents/github-code-review/agent-card.json",
+    "reviewer:trigger": "npx tsx agents/github-code-review/trigger.ts",
+    "orchestrator:check": "blocks check agents/pr-briefing-orchestrator/agent-card.json",
+    "orchestrator:publish": "blocks publish agents/pr-briefing-orchestrator/agent-card.json",
+    "orchestrator:run": "blocks run agents/pr-briefing-orchestrator/agent-card.json",
+    "orchestrator:trigger": "npx tsx agents/pr-briefing-orchestrator/trigger.ts"
   },
   "type": "module",
   "version": "1.0.0"
 }
-
