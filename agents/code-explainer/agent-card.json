@@ -1,0 +1,66 @@
+{
+  "identity": {
+    "agentName": "code_explainer",
+    "displayName": "Code Explainer",
+    "description": "Explains any code snippet for two audiences: technical (developers) and non-technical (PMs, stakeholders). Returns both explanations in a single call.",
+    "version": "1.0.0",
+    "provider": {
+      "organization": "blocks_poc"
+    }
+  },
+  "capabilities": {
+    "taskKinds": ["request"]
+  },
+  "io": {
+    "inputs": [
+      {
+        "id": "request",
+        "description": "Code to explain, with optional context about what it is part of.",
+        "contentType": "application/json",
+        "required": true,
+        "example": {
+          "code": "const token = req.headers.authorization?.split(' ')[1];",
+          "context": "Express.js auth middleware"
+        },
+        "schema": {
+          "type": "object",
+          "required": ["code"],
+          "properties": {
+            "code": {
+              "type": "string",
+              "title": "Code",
+              "description": "The code snippet to explain"
+            },
+            "context": {
+              "type": "string",
+              "title": "Context",
+              "description": "Optional — what system or feature this code belongs to"
+            }
+          }
+        }
+      }
+    ],
+    "outputs": [
+      {
+        "id": "result",
+        "description": "Dual explanation: technical (for developers) and non_technical (for PMs/stakeholders).",
+        "contentType": "application/json",
+        "guaranteed": true
+      }
+    ]
+  },
+  "skills": [
+    {
+      "id": "code-explanation",
+      "name": "Code Explanation",
+      "description": "Explains code for both technical and non-technical audiences simultaneously"
+    }
+  ],
+  "runtime": {
+    "handler": "./handler.ts",
+    "handlerExport": "default",
+    "concurrency": 5,
+    "expectedInstances": 1,
+    "maxRunningTimeSec": 60
+  }
+}
