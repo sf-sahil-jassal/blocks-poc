@@ -1,0 +1,73 @@
+{
+  "identity": {
+    "agentName": "github_code_reviewer",
+    "displayName": "GitHub Code Reviewer",
+    "description": "Fetches a GitHub PR diff and returns a line-aware code review with validated line references. Optionally submits the review to GitHub as a PENDING draft.",
+    "version": "1.0.0",
+    "provider": {
+      "organization": "blocks_poc"
+    }
+  },
+  "capabilities": {
+    "taskKinds": ["request"]
+  },
+  "io": {
+    "inputs": [
+      {
+        "id": "request",
+        "description": "GitHub PR URL to review, with optional context and submit flag.",
+        "contentType": "application/json",
+        "required": true,
+        "example": {
+          "pull_request_url": "https://github.com/org/repo/pull/123",
+          "context": "Adds JWT auth middleware to Express app",
+          "submit": false
+        },
+        "schema": {
+          "type": "object",
+          "required": ["pull_request_url"],
+          "properties": {
+            "pull_request_url": {
+              "type": "string",
+              "title": "Pull Request URL",
+              "description": "Full GitHub PR URL: https://github.com/{owner}/{repo}/pull/{number}"
+            },
+            "context": {
+              "type": "string",
+              "title": "Context",
+              "description": "Optional — what this PR is supposed to do"
+            },
+            "submit": {
+              "type": "boolean",
+              "title": "Submit to GitHub",
+              "description": "If true, posts the review to GitHub as a PENDING draft. Default false.",
+              "default": false
+            }
+          }
+        }
+      }
+    ],
+    "outputs": [
+      {
+        "id": "result",
+        "description": "Structured review: summary, risk level, line-aware comments, markdown, optional GitHub payload and review URL.",
+        "contentType": "application/json",
+        "guaranteed": true
+      }
+    ]
+  },
+  "skills": [
+    {
+      "id": "github-code-review",
+      "name": "GitHub Code Review",
+      "description": "Fetches PR diff, validates line references, and produces a structured, line-aware code review"
+    }
+  ],
+  "runtime": {
+    "handler": "./handler.ts",
+    "handlerExport": "default",
+    "concurrency": 3,
+    "expectedInstances": 1,
+    "maxRunningTimeSec": 120
+  }
+}

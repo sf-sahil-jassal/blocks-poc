@@ -18,29 +18,10 @@ Rules:
 - Never use technical terms in the non_technical section without immediately defining them in plain English.
 - Be specific and concrete. Avoid generic statements like "this code handles logic".`;
 
-type ExplainerInput = {
-  code: string;
-  context?: string;
-};
+type ExplainerInput = { code: string; context?: string };
 
 export const buildUserPrompt = ({ code, context }: ExplainerInput): string => `
 ${context ? `Context: ${context}\n` : ""}Code to explain:
 \`\`\`
 ${code}
-\`\`\`
-
-Return a JSON object with this exact shape:
-{
-  "technical": {
-    "what_it_does": "string",
-    "how_it_works": "string",
-    "key_concepts": ["string"],
-    "gotchas": ["string"]
-  },
-  "non_technical": {
-    "plain_english_summary": "string",
-    "business_value": "string",
-    "risks_or_unknowns": ["string"],
-    "questions_for_engineering": ["string"]
-  }
-}`;
+\`\`\``;

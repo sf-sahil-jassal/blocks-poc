@@ -1,27 +1,28 @@
 import type { HandlerResult, StartTaskMessage, TaskContext } from "@blocks-network/sdk";
-import { extractJSON } from "../../lib/json-extract.js";
-import { MODEL, openrouter } from "../../lib/openrouter.js";
+import { generateObject } from "ai";
+import { z } from "zod";
+import { model } from "../../lib/openrouter.js";
 import { SYSTEM_PROMPT, buildUserPrompt } from "./prompts.js";
 
-type ExplainerInput = {
-  code: string;
-  context?: string;
-};
+const InputSchema = z.object({
+  code: z.string(),
+  context: z.string().optional(),
+});
 
-type ExplainerOutput = {
-  technical: {
-    what_it_does: string;
-    how_it_works: string;
-    key_concepts: string[];
-    gotchas: string[];
-  };
-  non_technical: {
-    plain_english_summary: string;
-    business_value: string;
-    risks_or_unknowns: string[];
-    questions_for_engineering: string[];
-  };
-};
+const OutputSchema = z.object({
+  technical: z.object({
+    what_it_does: z.string(),
+    how_it_works: z.string(),
+    key_concepts: z.array(z.string()),
+    gotchas: z.array(z.string()),
+  }),
+  non_technical: z.object({
+    plain_english_summary: z.string(),
+    business_value: z.string(),
+    risks_or_unknowns: z.array(z.string()),
+    questions_for_engineering: z.array(z.string()),
+  }),
+});
 
 export default async function handler(
   task: StartTaskMessage,
@@ -29,23 +30,19 @@ export default async function handler(
 ): Promise<HandlerResult> {
   const part = task.requestParts?.[0] as { text?: string } | string | undefined;
   const raw = typeof part === "string" ? part : (part?.text ?? "{}");
-  const input = extractJSON<ExplainerInput>(raw);
+  const input = InputSchema.parse(JSON.parse(raw));
 
   ctx?.reportStatus("Explaining code...");
 
-  const response = await openrouter.chat.completions.create({
-    model: MODEL,
-    messages: [
-      { role: "system", content: SYSTEM_PROMPT },
-      { role: "user", content: buildUserPrompt(input) },
-    ],
+  const { object } = await generateObject({
+    model,
+    schema: OutputSchema,
+    mode: "json",
+    system: SYSTEM_PROMPT,
+    prompt: buildUserPrompt(input),
   });
 
-  const result = extractJSON<ExplainerOutput>(
-    response.choices[0].message.content ?? "",
-  );
-
   return {
-    artifacts: [{ data: JSON.stringify(result, null, 2), mimeType: "application/json" }],
+    artifacts: [{ data: JSON.stringify(object, null, 2), mimeType: "application/json" }],
   };
 }
